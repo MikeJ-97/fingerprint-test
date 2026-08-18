@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>fpclone simulator</title>
+<!-- Device-simulation harness, deployed separately from the product so the
+     production dashboard carries no test assets. MUST be served over HTTPS:
+     outside a secure context navigator.mediaDevices and navigator.permissions
+     are undefined, the SDK records them empty, and because they are hashed into
+     the fingerprint the same device yields a different visitorId than it would
+     in production. data-key is a PUBLIC key for the throwaway "simulation"
+     tenant only. -->
+<style>
+  :root { color-scheme: dark; --bg:#0b0d10; --card:#151920; --line:#252b36; --fg:#e6e9ef; --dim:#8b95a7; --accent:#4c9aff; --ok:#3ddc97; --warn:#ffb020; --bad:#ff5c5c; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg);
+         font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
+  label { display:block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); margin-bottom:6px; }
+  select, button { font:inherit; border-radius:10px; border:1px solid var(--line); }
+  select { width:100%; padding:12px; background:#0f1319; color:var(--fg); margin-bottom:14px; }
+  button { width:100%; padding:16px; background:var(--accent); color:#04101f; font-weight:700; border:none; }
+  button:disabled { opacity:.5; }
+  button.ghost { background:#1e2530; color:var(--fg); font-weight:500; padding:10px; margin-top:8px; }
+  /* Phone-readable IDs: the whole point of this page is copying these off a device. */
+  .id { font:600 15px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace; word-break:break-all;
+        background:#0f1319; border:1px solid var(--line); border-radius:8px; padding:12px; }
+  .row { margin-bottom:12px; }
+  .flag { display:inline-block; font-size:12px; padding:3px 8px; border-radius:999px; margin-right:6px; }
+  .new { background:rgba(61,220,151,.15); color:var(--ok); }
+  .ret { background:rgba(76,154,255,.15); color:var(--accent); }
+  .err { background:rgba(255,92,92,.15); color:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td { padding:6px 4px; border-top:1px solid var(--line); vertical-align:top; }
+  td:first-child { color:var(--dim); white-space:nowrap; padding-right:10px; }
+  .mono { font-family:ui-monospace,Menlo,monospace; word-break:break-all; }
+</style>
+</head>
+<body>
+  <h1>fpclone simulator</h1>
+  <div class="sub" id="platform">detecting…</div>
+
+  <div class="card">
+    <label for="user">Acting as user (linkedId)</label>
+    <select id="user">
+      <option value="">— none —</option>
+      <option value="user_4821" selected>user_4821</option>
+      <option value="user_9930">user_9930</option>
+      <option value="user_1122">user_1122</option>
+      <option value="user_3344">user_3344</option>
+    </select>
+    <button id="go" disabled>Loading SDK…</button>
+    <button class="ghost" id="copy" hidden>Copy requestId</button>
+  </div>
+
+  <div class="card" id="result" hidden>
+    <div class="row"><span id="flags"></span></div>
+    <div class="row"><label>visitorId</label><div class="id" id="vid"></div></div>
+    <div class="row"><label>requestId</label><div class="id" id="rid"></div></div>
+    <table id="meta"></table>
+  </div>
+
+  <div class="card" id="historyCard" hidden>
+    <label>This session</label>
+    <table id="history"></table>
+  </div>
+
+  <script
+    src="https://fingerprint-admin.maxwinvault.xyz/sdk/v1.js"
+    data-key="pk_live_8SJUe53uu1sz6OdvO9foGUfI"
+    data-endpoint="https://fingerprint-api.maxwinvault.xyz"></script>
+  <script src="./sim.js"></script>
+</body>
+</html>

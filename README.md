@@ -4,14 +4,19 @@ Multi-platform clients that exercise the deployed fpclone API
 (`https://fingerprint-api.maxwinvault.xyz`) against a dedicated `simulation`
 tenant.
 
-Every client loads the **same page**, served by the dashboard at
-`https://fingerprint-admin.maxwinvault.xyz/sim/`, with the **real SDK** from
-`/sdk/v1.js`. The client is the variable under test — the code is not.
+Every client loads the **same page** — `page/index.html`, deployed as its own
+Coolify resource — which pulls the **real SDK** from the dashboard's
+`/sdk/v1.js`. The client is the variable under test; the code is not.
 
-The page itself lives in the product repo at `apps/dashboard/public/sim/` so it
-is served over HTTPS on an existing certificate. There is deliberately no second
-local copy: two copies drift, and the desktop suite must exercise the exact
-artifact the phones load.
+The page is deployed rather than served locally so that phones, the Android APK
+and the iOS app all load the identical artifact the desktop suite tests. Set
+`FPCLONE_PAGE_URL` in `.env` to its deployed URL.
+
+**It must be served over HTTPS.** Outside a secure context
+`navigator.mediaDevices` and `navigator.permissions` are undefined, the SDK
+records them empty, and because they are hashed into the fingerprint the same
+device yields a different `visitorId` than it would in production. The page
+warns on screen when this is wrong.
 
 ## Setup
 
@@ -29,11 +34,22 @@ it is used only by `verify/` and `attacker/`, never by `page/` or `mobile/`.
 |---|---|
 | `npm run smoke` | End-to-end check with no browser: identify + verify. Run this first. |
 | `npm run verify -- r_xxx` | Server-side lookup of one requestId. Use for phone runs. |
+| `npm run serve` | Serves `page/` locally on :3000 (same code the container runs). |
 | `npm run test:desktop` | Playwright suite (chromium / firefox / webkit). |
 | `cd mobile && npm run build:android` | Builds the installable `.apk` via EAS. |
 | `cd mobile && npm run build:ios` | Builds the `.ipa` via EAS (needs an Apple account). |
 | `node --env-file=.env attacker/forge.mjs` | Integrity, tamper and replay scenarios. |
 | `node --env-file=.env attacker/bot.mjs` | Bot and automation scenarios. |
+
+## Deployment
+
+`page/` is deployed by Coolify from this repo's `Dockerfile` (project **UAT
+Deployment**, environment **fingerprint-test**). The image contains only the
+page and a dependency-free static server; `/healthz` is the container health
+check.
+
+The deployed origin must be listed in the `sim-clients` API key's **allowed
+origins**, or every identify returns 403 `origin_not_allowed`.
 
 ## Testing from a phone
 
