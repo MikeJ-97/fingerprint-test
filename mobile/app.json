@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "fpclone sim",
+    "slug": "fpclone-sim",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0b0d10",
+    "ios": {
+      "bundleIdentifier": "xyz.maxwinvault.fpclonesim",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "xyz.maxwinvault.fpclonesim"
+    }
+  }
+}
