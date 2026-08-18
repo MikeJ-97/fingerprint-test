@@ -8,10 +8,16 @@
     "backgroundColor": "#0b0d10",
     "ios": {
       "bundleIdentifier": "xyz.maxwinvault.fpclonesim",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
-      "package": "xyz.maxwinvault.fpclonesim"
+      "package": "xyz.maxwinvault.fpclonesim",
+      "usesCleartextTraffic": true
     }
   }
 }
