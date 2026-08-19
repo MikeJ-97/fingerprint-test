@@ -11,7 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 // It must load over https from a real origin. A page loaded from local app
 // assets (file://) sends `Origin: null`, which the ingest cannot parse, and
 // every identify would 403 at apps/ingest/src/middleware/origin.ts.
-const PAGE_URL = 'http://ejhz5kz6kcm6qo6oiawx67sf.134.209.97.63.sslip.io/';
+const PAGE_URL = 'https://fingerprint-sim.maxwinvault.xyz/';
 
 export default function App() {
   const webview = useRef(null);

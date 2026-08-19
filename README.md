@@ -9,8 +9,9 @@ Coolify resource — which pulls the **real SDK** from the dashboard's
 `/sdk/v1.js`. The client is the variable under test; the code is not.
 
 The page is deployed rather than served locally so that phones, the Android APK
-and the iOS app all load the identical artifact the desktop suite tests. Set
-`FPCLONE_PAGE_URL` in `.env` to its deployed URL.
+and the iOS app all load the identical artifact the desktop suite tests. It is served over HTTPS at
+`https://fingerprint-sim.maxwinvault.xyz/` — a secure context, which the
+fingerprint depends on.
 
 **It must be served over HTTPS.** Outside a secure context
 `navigator.mediaDevices` and `navigator.permissions` are undefined, the SDK

@@ -14,23 +14,6 @@ Loading the page from local assets (`file://`) is not an option — that sends
 `Origin: null`, which `apps/ingest/src/middleware/origin.ts` cannot parse, so
 every identify would 403.
 
-## Cleartext HTTP exceptions — remove these once the page is on HTTPS
-
-`app.json` sets `android.usesCleartextTraffic` and iOS `NSAllowsArbitraryLoads`.
-Both are **only** there because the deployed page is currently served over plain
-HTTP from a Coolify `sslip.io` domain; without them Android and iOS refuse the
-connection outright and the WebView shows nothing.
-
-They are a workaround, not a design choice, and they carry a real cost beyond
-the security flags: an HTTP page is not a secure context, so
-`navigator.mediaDevices` and `navigator.permissions` are undefined, the SDK
-records them empty, and — because both are hashed into the fingerprint — **the
-visitorId this app produces will not match what the same device produces in
-production over HTTPS.** Fingerprint *stability* can be tested through it;
-fingerprint *accuracy* cannot.
-
-Delete both flags the moment the page has an HTTPS domain.
-
 ## Android — buildable from Windows today
 
 ```bash
