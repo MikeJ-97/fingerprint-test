@@ -41,7 +41,11 @@ export function format(e) {
 
 // CLI entry. Guarded on being the entrypoint: without this the block runs on
 // every import, and a Playwright worker's argv[2] gets read as a requestId.
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+// argv[1] is undefined under `node -e`, where pathToFileURL would throw — so
+// the guard has to tolerate not being run as a script at all, not just not
+// being the entrypoint.
+const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : null;
+if (entrypoint !== null && import.meta.url === entrypoint) {
   const requestId = process.argv[2];
   if (!requestId) {
     console.error('usage: npm run verify -- <requestId>');

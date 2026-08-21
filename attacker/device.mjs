@@ -43,8 +43,14 @@ export async function getNonce() {
 }
 
 export async function identify({ signals, ua = UA_CHROME, nonce, token, linkedId, origin = ORIGIN }) {
+  // ua: null means send NO User-Agent at all, which fetch cannot do -- undici
+  // injects `User-Agent: node`. That silently invalidated this scenario: the
+  // server recorded "node", not an absent header, so the case being tested was
+  // never actually exercised. node:https sends only the headers it is given.
+  if (ua === null) return identifyWithoutUserAgent({ signals, nonce, token, linkedId, origin });
+
   const headers = { 'Content-Type': 'application/json', Origin: origin };
-  if (ua !== null) headers['User-Agent'] = ua;
+  headers['User-Agent'] = ua;
   if (token) headers['X-FP-Integrity'] = token;
 
   const body = JSON.stringify({
@@ -57,4 +63,46 @@ export async function identify({ signals, ua = UA_CHROME, nonce, token, linkedId
 
   const res = await fetch(`${API}/v1/identify`, { method: 'POST', headers, body });
   return { status: res.status, body: await res.json() };
+}
+
+/** Sends a request with genuinely no User-Agent header. Uses node:https rather
+ *  than fetch because undici always supplies a default, and a default is
+ *  exactly what this scenario must not have. */
+async function identifyWithoutUserAgent({ signals, nonce, token, linkedId, origin }) {
+  const { request } = await import('node:https');
+  const api = new URL(API);
+  const payload = JSON.stringify({
+    publicKey: PUBLIC_KEY,
+    signals: signals ?? makeSignals(),
+    schemaVersion: 1,
+    ...(nonce ? { nonce } : {}),
+    ...(linkedId ? { linkedId } : {}),
+  });
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(payload),
+    Origin: origin,
+  };
+  if (token) headers['X-FP-Integrity'] = token;
+
+  return new Promise((resolve, reject) => {
+    const req = request(
+      { hostname: api.hostname, port: api.port || 443, path: '/v1/identify', method: 'POST', headers },
+      (res) => {
+        let raw = '';
+        res.on('data', (c) => (raw += c));
+        res.on('end', () => {
+          try {
+            resolve({ status: res.statusCode, body: JSON.parse(raw) });
+          } catch {
+            resolve({ status: res.statusCode, body: { error: 'unparseable', raw } });
+          }
+        });
+      },
+    );
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
 }
