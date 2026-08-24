@@ -3,6 +3,5 @@ node_modules
 test-results
 playwright-report
 desktop
-attacker
-verify
 mobile
+.git

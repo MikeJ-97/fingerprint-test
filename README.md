@@ -41,6 +41,29 @@ it is used only by `verify/` and `attacker/`, never by `page/` or `mobile/`.
 | `npm run verify -- r_xxx` | Look up one requestId with the secret key | Used for phone runs, where the browser cannot verify itself |
 | `npm run serve` | Serves `page/` locally on :3000 | Same code the deployed container runs |
 
+## Test console (web UI)
+
+`/console` on the deployed host runs the suites server-side and shows the
+output, so they can be run by clicking instead of typing. The suites need the
+SECRET key, which is why they run on the server — the browser only ever sees
+their output.
+
+It is **password-gated and fails closed**: with `TEST_CONSOLE_PASSWORD` unset
+the console 404s entirely. Its output contains real event data (visitor ids,
+IPs, locations), so an open one would be worse than the terminal it replaces.
+
+Container environment:
+
+| Variable | Purpose |
+|---|---|
+| `TEST_CONSOLE_PASSWORD` | Enables the console. Unset = disabled. |
+| `FPCLONE_API_URL` | Which deployment the suites hit |
+| `FPCLONE_PUBLIC_KEY` | Safe to expose |
+| `FPCLONE_SECRET_KEY` | Server-side only, never sent to the browser |
+
+The Playwright suite is **not** available there — no browsers are installed in
+the image, and adding them costs about a gigabyte. Run it locally.
+
 ## Deployment
 
 `page/` is deployed by Coolify from this repo's `Dockerfile` (project **UAT

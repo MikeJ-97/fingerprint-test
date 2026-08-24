@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>fpclone test console</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#0b0d10; --card:#151920; --line:#252b36; --sunken:#0f1319;
+    --fg:#e6e9ef; --dim:#8b95a7; --accent:#4c9aff;
+    --ok:#3ddc97; --warn:#ffb020; --bad:#ff5c5c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; padding:24px; background:var(--bg); color:var(--fg);
+    font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:14px; margin:0 0 24px; }
+  h2 {
+    font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--dim); margin:32px 0 12px;
+  }
+  .card {
+    background:var(--card); border:1px solid var(--line);
+    border-radius:12px; padding:16px; margin-bottom:12px;
+  }
+  button {
+    font:inherit; border:none; border-radius:10px; padding:12px 18px;
+    background:var(--accent); color:#04101f; font-weight:700; cursor:pointer;
+  }
+  button:disabled { opacity:.5; cursor:default; }
+  button.ghost { background:#1e2530; color:var(--fg); font-weight:600; }
+  input {
+    font:inherit; width:100%; padding:12px; border-radius:10px;
+    border:1px solid var(--line); background:var(--sunken); color:var(--fg);
+  }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .grow { flex:1; min-width:200px; }
+  .suite { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
+  .suite__name { font-weight:600; }
+  .suite__blurb { color:var(--dim); font-size:14px; }
+  pre {
+    font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--sunken); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; overflow-x:auto; margin:12px 0 0; white-space:pre;
+  }
+  .pill {
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .pill--ok { background:rgba(61,220,151,.15); color:var(--ok); }
+  .pill--bad { background:rgba(255,92,92,.15); color:var(--bad); }
+  .pill--run { background:rgba(76,154,255,.15); color:var(--accent); }
+  .note { color:var(--dim); font-size:14px; }
+  a { color:var(--accent); }
+  .hidden { display:none; }
+  .err { color:var(--bad); font-size:14px; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>fpclone test console</h1>
+  <p class="sub">Runs the suites on the server, against the live API. The secret key stays here — your browser only ever sees the output.</p>
+
+  <div id="login" class="card hidden">
+    <div class="row">
+      <input id="password" class="grow" type="password" placeholder="Console password" autocomplete="current-password" />
+      <button id="loginBtn" type="button">Sign in</button>
+    </div>
+    <p id="loginErr" class="err hidden"></p>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="card">
+      <div class="row">
+        <button id="runAll" type="button">Run everything</button>
+        <span class="note">Takes about a minute. Each suite also runs on its own below.</span>
+      </div>
+    </div>
+
+    <h2>Suites</h2>
+    <div id="suites"></div>
+
+    <h2>Mobile apps</h2>
+    <div id="downloads"></div>
+
+    <h2>Simulator</h2>
+    <div class="card">
+      <p class="note" style="margin:0 0 10px">
+        Open this on a phone to check a real device gets a stable visitorId. Identify twice —
+        the second should say <strong>RETURNING</strong> with the same id.
+      </p>
+      <a href="/" target="_blank" rel="noopener">Open the simulator page →</a>
+    </div>
+  </div>
+</div>
+<script src="./console.js"></script>
+</body>
+</html>
