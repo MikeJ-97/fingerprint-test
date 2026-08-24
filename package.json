@@ -3,9 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "verify": "node --env-file=.env verify/cli.mjs",
     "smoke": "node --env-file=.env verify/smoke.mjs",
+    "verify": "node --env-file=.env verify/cli.mjs",
+    "bots": "node --env-file=.env attacker/bot.mjs",
+    "forge": "node --env-file=.env attacker/forge.mjs",
     "test:desktop": "playwright test --config desktop/playwright.config.ts",
+    "test:policy": "node --test verify/policy.test.mjs",
     "serve": "node server.mjs"
   },
   "devDependencies": {

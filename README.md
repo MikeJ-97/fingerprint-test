@@ -31,16 +31,15 @@ it is used only by `verify/` and `attacker/`, never by `page/` or `mobile/`.
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `npm run smoke` | End-to-end check with no browser: identify + verify. Run this first. |
-| `npm run verify -- r_xxx` | Server-side lookup of one requestId. Use for phone runs. |
-| `npm run serve` | Serves `page/` locally on :3000 (same code the container runs). |
-| `npm run test:desktop` | Playwright suite (chromium / firefox / webkit). |
-| `cd mobile && npm run build:android` | Builds the installable `.apk` via EAS. |
-| `cd mobile && npm run build:ios` | Builds the `.ipa` via EAS (needs an Apple account). |
-| `node --env-file=.env attacker/forge.mjs` | Integrity, tamper and replay scenarios. |
-| `node --env-file=.env attacker/bot.mjs` | Bot and automation scenarios. |
+| Command | What it does | What it proves |
+|---|---|---|
+| `npm run smoke` | One identify + one server-side verify, no browser | The key, origin and endpoint all work |
+| `npm run bots` | Seven client shapes: headless, curl, Googlebot, no UA, webdriver, liar | Automation is scored, honest browsers are not |
+| `npm run forge` | Five forgery attempts: no nonce, replayed nonce, bad HMAC, stale clock | The integrity layer notices |
+| `npm run test:desktop` | Playwright: identity stability, multi-account curve | Same device stays one visitor; different devices do not merge |
+| `npm run test:policy` | Unit tests for `verify/policy.mjs` | Your allow/review/block rules behave as intended |
+| `npm run verify -- r_xxx` | Look up one requestId with the secret key | Used for phone runs, where the browser cannot verify itself |
+| `npm run serve` | Serves `page/` locally on :3000 | Same code the deployed container runs |
 
 ## Deployment
 
