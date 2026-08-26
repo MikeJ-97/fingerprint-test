@@ -62,7 +62,16 @@ export async function identify({ signals, ua = UA_CHROME, nonce, token, linkedId
   });
 
   const res = await fetch(`${API}/v1/identify`, { method: 'POST', headers, body });
-  return { status: res.status, body: await res.json() };
+  // Tolerate a non-JSON response. The API returns HTML during a deploy, and a
+  // bare res.json() then dies with an undici stack trace that says nothing
+  // about what happened -- a test tool must report "HTTP 502, not JSON", not
+  // crash the suite. The node:https path below already did this; now both do.
+  const raw = await res.text();
+  try {
+    return { status: res.status, body: JSON.parse(raw) };
+  } catch {
+    return { status: res.status, body: { error: 'unparseable', raw: raw.slice(0, 200) } };
+  }
 }
 
 /** Sends a request with genuinely no User-Agent header. Uses node:https rather
