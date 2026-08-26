@@ -112,11 +112,14 @@ function renderDownloads(files) {
 
     if (f.available) {
       const mb = Math.round((f.bytes / 1024 / 1024) * 10) / 10;
-      blurb.textContent = `${String(mb)} MB`;
+      blurb.textContent = f.builtAt ? `${String(mb)} MB · built ${f.builtAt}` : `${String(mb)} MB`;
 
       const link = document.createElement('a');
-      link.href = `/downloads/${encodeURIComponent(f.file)}`;
-      link.setAttribute('download', '');
+      // href comes from the server: a local path when the file is hosted here,
+      // or the EAS CDN URL when it is linked rather than committed.
+      link.href = f.href;
+      if (f.href.startsWith('/')) link.setAttribute('download', '');
+      else link.rel = 'noopener';
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = 'Download';

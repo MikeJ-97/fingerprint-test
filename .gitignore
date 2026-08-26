@@ -2,3 +2,8 @@
 node_modules/
 test-results/
 playwright-report/
+
+# Built app binaries. Linked from downloads/manifest.json instead: a ~58 MB APK
+# committed to a public repo is permanent, and every rebuild adds another.
+downloads/*.apk
+downloads/*.ipa

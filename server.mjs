@@ -254,19 +254,49 @@ function describeSuites() {
 }
 
 async function listDownloads() {
+  // Artifacts are LINKED, not committed. An APK is ~58 MB, and a public git
+  // repo keeps every copy forever -- a few rebuilds would outweigh the entire
+  // rest of the project, unremovable without rewriting history. EAS already
+  // hosts the file on a CDN, so downloads/manifest.json records the URL and the
+  // console links to it. A locally-placed file still works and takes priority,
+  // for anyone who would rather host it themselves.
   const wanted = [
-    { file: 'fpclone-sim.apk', label: 'Android APK', platform: 'Android' },
-    { file: 'fpclone-sim.ipa', label: 'iOS IPA', platform: 'iOS' },
+    { key: 'android', file: 'fpclone-sim.apk', label: 'Android APK', platform: 'Android' },
+    { key: 'ios', file: 'fpclone-sim.ipa', label: 'iOS IPA', platform: 'iOS' },
   ];
+
+  let manifest = {};
+  try {
+    manifest = JSON.parse(await readFile(join(DOWNLOAD_DIR, 'manifest.json'), 'utf8'));
+  } catch {
+    // No manifest is normal: nothing has been built yet.
+  }
+
   const out = [];
   for (const w of wanted) {
+    let local = null;
     try {
       const s = await stat(join(DOWNLOAD_DIR, w.file));
-      out.push({ ...w, available: true, bytes: s.size });
+      local = s.size;
     } catch {
+      // Not present locally; fall through to the manifest.
+    }
+
+    const entry = manifest[w.key];
+    if (local !== null) {
+      out.push({ ...w, available: true, bytes: local, href: `/downloads/${w.file}` });
+    } else if (entry?.url) {
+      out.push({
+        ...w,
+        available: true,
+        bytes: entry.bytes ?? 0,
+        href: entry.url,
+        builtAt: entry.builtAt ?? null,
+      });
+    } else {
       // Reported as unavailable rather than omitted, so the page can explain
       // what is missing instead of silently showing nothing.
-      out.push({ ...w, available: false, bytes: 0 });
+      out.push({ ...w, available: false, bytes: 0, href: null });
     }
   }
   return out;
